@@ -79,7 +79,9 @@ package org.bigbluebutton.modules.videoconf.maps
     private var _chromeWebcamPermissionDenied:Boolean = false;
 
     private var _videoDock:VideoDock;
+    private var _videoDockMain:VideoDock; // moderator or selfview
     private var _graphics:GraphicsWrapper = new GraphicsWrapper();
+    private var _graphicsMain:GraphicsWrapper = new GraphicsWrapper();
     private var streamList:ArrayList = new ArrayList();
 
     private var _restream:Boolean = false;
@@ -108,8 +110,18 @@ package org.bigbluebutton.modules.videoconf.maps
       _dispatcher.dispatchEvent(windowEvent);
 
       _videoDock.addChild(_graphics);
+
+      _videoDockMain = new VideoDock();
+      //_videoDockMain.setName("VideoDockMain");
+      var mainWindowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+      mainWindowEvent.window = _videoDockMain;
+      _dispatcher.dispatchEvent(mainWindowEvent);
+
+      _videoDockMain.addChild(_graphicsMain);
+
     }
 
+    // seems this function is not used
     public function addStaticComponent(component:IUIComponent):void {
       _graphics.addStaticComponent(component);
     }
@@ -281,29 +293,42 @@ package org.bigbluebutton.modules.videoconf.maps
 
       closeAllAvatarWindows(userID);
 
-      _graphics.addAvatarFor(userID);
+      if( UsersUtil.isMe(userID) || UsersUtil.getUser2x(userID).role == Role.MODERATOR ) {
+          _graphicsMain.addAvatarFor(userID);
+      } else {
+          _graphics.addAvatarFor(userID);
+      }
     }
 
     private function closeAllAvatarWindows(userID:String):void {
-      _graphics.removeAvatarFor(userID);
+      if( UsersUtil.isMe(userID) || UsersUtil.getUser2x(userID).role == Role.MODERATOR ) {
+          _graphicsMain.removeAvatarFor(userID);
+      } else {
+          _graphics.removeAvatarFor(userID);
+      }
     }
 
     private function openPublishWindowFor(userID:String, camIndex:int, videoProfile:VideoProfile):void {
       closeAllAvatarWindows(userID);
 
-      _graphics.addCameraFor(userID, camIndex, videoProfile);
+      if( UsersUtil.isMe(userID) || UsersUtil.getUser2x(userID).role == Role.MODERATOR ) {
+          _graphicsMain.addCameraFor(userID, camIndex, videoProfile);
+      } else {
+          _graphics.addCameraFor(userID, camIndex, videoProfile);
+      }
     }
 
     private function hasWindow(userID:String):Boolean {
-      return _graphics.hasGraphicsFor(userID);
+      return _graphics.hasGraphicsFor(userID) || _graphicsMain.hasGraphicsFor(userID);
     }
 
     private function closeWindow(userID:String):void {
       _graphics.removeGraphicsFor(userID);
+      _graphicsMain.removeGraphicsFor(userID);
     }
 
     private function closePublishWindowByStream(stream:String):int {
-      return _graphics.removeVideoByStreamName(UsersUtil.getMyUserID(), stream);
+      return _graphics.removeVideoByStreamName(UsersUtil.getMyUserID(), stream) || _graphicsMain.removeVideoByStreamName(UsersUtil.getMyUserID(), stream);
     }
     
     private function closePublishWindow():void {
@@ -316,13 +341,18 @@ package org.bigbluebutton.modules.videoconf.maps
        return;
       }
       
-      LOGGER.debug("VideoEventMapDelegate:: [{0}] openViewWindowFor:: Opening VIEW window for [{1}] [{2}]", [me, userID, UsersUtil.getUserName(userID)]);
+      LOGGER.debug("VideoEventMapDelegate:: [{0}] openViewWindowFor:: Opening VIEW window for [{1}] [{2}] [{3}]", [me, userID, UsersUtil.getUserName(userID), UsersUtil.getUser2x(userID).role]);
 
       var hasStream: Boolean = LiveMeeting.inst().webcams.getStreamsForUser(userID).length > 0;
       if (hasStream) {
         closeAllAvatarWindows(userID);
       }
-      _graphics.addVideoFor(userID, proxy.connection);
+
+      if( UsersUtil.isMe(userID) || UsersUtil.getUser2x(userID).role == Role.MODERATOR ) {
+          _graphicsMain.addVideoFor(userID, proxy.connection);
+      } else {
+          _graphics.addVideoFor(userID, proxy.connection);
+      }
     }
 
     public function connectToVideoApp():void {
@@ -427,6 +457,7 @@ package org.bigbluebutton.modules.videoconf.maps
       removeCamera(camIndex);
 
       _graphics.removeVideoByCamIndex(userID, camIndex);
+      _graphicsMain.removeVideoByCamIndex(userID, camIndex);
     }
 
     public function handleCamSettingsClosedEvent(event:BBBEvent):void{
@@ -448,9 +479,15 @@ package org.bigbluebutton.modules.videoconf.maps
     public function stopModule():void {
       LOGGER.debug("VideoEventMapDelegate:: stopping video module");
       closeAllWindows();
+
       var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
       event.window = _videoDock;
       globalDispatcher.dispatchEvent(event);
+
+      var mainEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
+      mainEvent.window = _videoDockMain;
+      globalDispatcher.dispatchEvent(mainEvent);
+
       proxy.reconnectWhenDisconnected(false);
       proxy.disconnect();
     }
@@ -462,6 +499,7 @@ package org.bigbluebutton.modules.videoconf.maps
       }
 
       _graphics.shutdown();
+      _graphicsMain.shutdown();
     }
 
     public function switchToPresenter(event:MadePresenterEvent):void{
@@ -554,6 +592,7 @@ package org.bigbluebutton.modules.videoconf.maps
 
     private function closeViewWindowWithStream(userID:String, stream:String):void {
       _graphics.removeVideoByStreamName(userID, stream);
+      _graphicsMain.removeVideoByStreamName(userID, stream);
     }
 
     public function handleStoppedViewingWebcamEvent(event:StoppedViewingWebcamEvent):void {

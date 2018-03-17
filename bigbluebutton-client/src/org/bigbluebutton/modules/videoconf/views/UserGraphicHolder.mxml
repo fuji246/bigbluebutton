@@ -117,8 +117,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                             scaledHeight = unscaledWidth / imageScale;
                             LOGGER.warn("imageScale = " + imageScale + ", scale = " + scale);
                         }
-                        foreground.width = scaledWidth * 3 / 5;
-                        foreground.height = scaledHeight * 3 / 5;
+                        foreground.width = scaledWidth;
+                        foreground.height = scaledHeight;
                         LOGGER.info("updateDisplayList, imageH = " + imageHeight + ", imageW = " + imageWidth + ", h = " + unscaledHeight + ", w = " + unscaledWidth);
                         foreground.x = (unscaledWidth - foreground.width)/2;
                         foreground.y = (unscaledHeight - foreground.height)/2;

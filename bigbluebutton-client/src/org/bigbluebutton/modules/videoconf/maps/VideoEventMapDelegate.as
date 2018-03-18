@@ -112,7 +112,7 @@ package org.bigbluebutton.modules.videoconf.maps
       _videoDock.addChild(_graphics);
 
       _videoDockMain = new VideoDock();
-      //_videoDockMain.setName("VideoDockMain");
+      _videoDockMain.setName("VideoDockMain");
       var mainWindowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
       mainWindowEvent.window = _videoDockMain;
       _dispatcher.dispatchEvent(mainWindowEvent);

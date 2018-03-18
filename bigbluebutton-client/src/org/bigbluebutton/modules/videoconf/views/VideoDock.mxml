@@ -57,6 +57,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var disp:Dispatcher = new Dispatcher();
 			
 			private var darkMode:Boolean;
+                        private var _windowName:String = "VideoDock"
 			
 			private function onCreationComplete():void {
 				hotkeyCapture();
@@ -69,13 +70,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				resourcesChanged(); // update the window controls once they've been created
 			}
-			
+
 			public function getPrefferedPosition():String {
 				return MainCanvas.BOTTOM_LEFT;
 			}
-			
+
+                        public function setName(name:String):void {
+                                _windowName = name;
+                        }
 			public function getName():String {
-				return "VideoDock";
+				return _windowName;
 			}
 			
 			private function hotkeyCapture():void {

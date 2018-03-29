@@ -98,6 +98,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 _newParent = getBBBDisplayObjectContainer();
                 fullScreenIcon.source = getStyle("iconFullScreen");
 				closeIcon.source = getStyle("iconClose");
+                foreground.source = getStyle("iconCameraFrame");
+            }
+            override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+                super.updateDisplayList(unscaledWidth, unscaledHeight);
+                if (_me) {
+                    foreground.visible = true;
+                    if ( unscaledHeight > 0 && unscaledHeight > 0 ) {
+                        var imageWidth: Number  = foreground.getExplicitOrMeasuredWidth();
+                        var imageHeight: Number = foreground.getExplicitOrMeasuredHeight();
+                        var imageScale: Number = imageWidth / imageHeight;
+                        var scale: Number = unscaledWidth / unscaledHeight;
+                        var scaledWidth: Number = unscaledWidth;
+                        var scaledHeight: Number = unscaledHeight;
+                        if (imageScale < scale) {
+                            scaledWidth= imageScale * unscaledHeight;
+                        } else {
+                            scaledHeight = unscaledWidth / imageScale;
+                            LOGGER.warn("imageScale = " + imageScale + ", scale = " + scale);
+                        }
+                        foreground.width = scaledWidth;
+                        foreground.height = scaledHeight;
+                        LOGGER.info("updateDisplayList, imageH = " + imageHeight + ", imageW = " + imageWidth + ", h = " + unscaledHeight + ", w = " + unscaledWidth);
+                        foreground.x = (unscaledWidth - foreground.width)/2;
+                        foreground.y = (unscaledHeight - foreground.height)/2;
+                        LOGGER.info("updateDisplayList, foreground x = " + foreground.x + ", y = " + foreground.y + ", width = " + foreground.width + ", height = " + foreground.height);
+                    }
+                } else {
+                    foreground.visible = false;
+                }
             }
 
             private function getBBBDisplayObjectContainer():DisplayObjectContainer {
@@ -454,5 +483,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			mouseOut="onMuteBtnMouseOut()" 
 			right="8"
 			bottom="8"/>
+
+        <mx:Image id="foreground"/>
     </mx:Canvas>
 </mx:VBox>

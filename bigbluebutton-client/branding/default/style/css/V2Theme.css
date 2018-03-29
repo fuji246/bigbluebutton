@@ -1825,6 +1825,7 @@ videoconf|UserGraphicHolder {
 	iconClose          : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Close_Video");
 	iconFullScreen     : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Fullscreen_White");
 	iconExitFullScreen : Embed(source="assets/swf/v2_skin.swf", symbol="Icon_Exit_Fullscreen_White");
+        iconCameraFrame    : Embed("assets/images/camera_foreground.png");
 }
 
 .userGraphicBackground {

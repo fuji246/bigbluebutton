@@ -60,6 +60,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return MainCanvas.TOP_RIGHT;
 			} 
 			
+                        public function getName():String {
+                                return "ChatWindow";
+                        } 
 			private function onCreationComplete():void {
 				hotkeyCapture();
 				titleBarOverlay.tabIndex = chatOptions.baseTabIndex;

@@ -87,6 +87,7 @@ package org.bigbluebutton.modules.videoconf.maps
     private var streamList:ArrayList = new ArrayList();
 
     private var _firstJoinVideo: Boolean = true; // only used when I am moderator
+    private var _firstUserId: String = "";
     private var _restream:Boolean = false;
     private var _myCamSettings:ArrayCollection = null;
 
@@ -370,12 +371,18 @@ package org.bigbluebutton.modules.videoconf.maps
               _graphics.addVideoFor(userID, proxy.connection);
           } else {
               if (!_firstJoinVideo) {
-                  LOGGER.info("I am moderator, add later user's video on the left");
-                  _graphics.addVideoFor(userID, proxy.connection);
+                  if (_firstUserId == userID) {
+                      LOGGER.info("I am moderator, same user, add first user's video on the bottom");
+                      _graphicsSelf.addVideoFor(userID, proxy.connection);
+                  } else {
+                      LOGGER.info("I am moderator, add later user's video on the left");
+                      _graphics.addVideoFor(userID, proxy.connection);
+                  }
               } else {
                   LOGGER.info("I am moderator, add first user's video on the bottom");
                   _graphicsSelf.addVideoFor(userID, proxy.connection);
                   _firstJoinVideo = false;
+                  _firstUserId = userID
               }
           }
       }
